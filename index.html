@@ -67,7 +67,7 @@
 
     <img src="portfolio/rgb-circle-1.png" class="themeClrSelector__img">
   </div>
-  <section class="home-hero dynamicBg" "="" style=" background: linear-gradient(to right, rgba(214, 0, 0,
+  <section class="home-hero dynamicBg" style=" background: linear-gradient(to right, rgba(214, 0, 0,
     0.8), rgba(214, 0, 0, 0.8)), url(&quot;../../assets/svg/common-bg.svg&quot;);">
     <div id="header1"></div>
     <div class="home-hero__content">
@@ -285,11 +285,10 @@
     }
 
     function windowResized() {
-      if(windowWidth > windowHeight){
+      if (windowWidth < windowHeight) {
         resizeCanvas(windowWidth, windowHeight);
-      }else{
-        document.getElementById("header1").innerHTML = '';
       }
+
     }
   </script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js'></script>
