@@ -291,7 +291,7 @@ textarea {
   font-weight: 700;
   font-size: 2.8rem;
   margin-bottom: 3rem;
-  color:#fff;
+  color: #fff;
 }
 @media only screen and (max-width: 37.5em) {
   .about__content-title {
@@ -358,7 +358,7 @@ textarea {
   font-weight: 700;
   font-size: 2.8rem;
   margin-bottom: 2rem;
-  color:  #fff;
+  color: #fff;
 }
 @media only screen and (max-width: 37.5em) {
   .projects__row-content-title {
@@ -875,34 +875,10 @@ textarea {
   }
 }
 
-iframe{
-    width:100%;
-    font-size: 1 rem !important;
+iframe {
+  width: 100%;
+  font-size: 1 rem !important;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 * {
   animation: hue-rotate 100s linear infinite;
@@ -913,9 +889,8 @@ iframe{
   border: none;
   color: #fff;
   display: inline-block;
-  font-family: '
- Montserrat'
- , sans-serif;
+  font-family: "
+ Montserrat", sans-serif;
   font-size: 14px;
   font-weight: 100;
   text-decoration: none;
@@ -973,12 +948,6 @@ iframe{
   height: 400%;
   top: -150%;
   left: -50%;
-  -webkit-filter: url("
- #goo"
- );
-  filter: url("
- #goo"
- );
   transition: all 0.1s ease-out;
   pointer-events: none;
 }
@@ -1004,7 +973,8 @@ iframe{
   width: 1px;
   height: 1px;
 }
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   text-align: center;
@@ -1019,11 +989,11 @@ html, body {
     -moz-filter: hue-rotate(0);
     -ms-filter: hue-rotate(0);
     filter: hue-rotate(0);
- }
+  }
   to {
     -webkit-filter: hue-rotate(360deg);
     -moz-filter: hue-rotate(360deg);
     -ms-filter: hue-rotate(360deg);
     filter: hue-rotate(360deg);
- }
+  }
 }
