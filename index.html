@@ -74,7 +74,6 @@
       <h1 class="heading-primary">Hey there I'm Jeff</h1>
       <div class="home-hero__info">
         <p class="text-primary">I'm studying Advanced Computer Science at the University of Adelaide</p>
-        <p class="text-primary">The tree below was made using recursion</p>
       </div>
       <div class="home-hero__cta">
         <a href="#projects" class="btn btn--bg">Projects</a>
@@ -225,21 +224,18 @@
           <p class="main-footer__short-desc">Computer Science</p>
         </div>
       </div>
-
-      <div class="main-footer__lower">
-      </div>
     </div>
   </footer>
   <script>
     let theta;
-
+    let hidden = false;
     function setup() {
+      var canvas = createCanvas(windowWidth, windowHeight);
+      canvas.parent("header1");
       // keep a 16:9 portrait format
-      if (windowWidth > windowHeight) {
-        var canvas = createCanvas(windowWidth, windowHeight);
-        canvas.parent("header1");
-      }else{
-        var canvas = createCanvas(windowWidth, windowHeight/2);
+      if (windowWidth < 600) {
+        document.getElementById("header1").innerHTML = '';
+        hidden = true;
       }
     }
 
@@ -287,17 +283,14 @@
     }
 
     function windowResized() {
-      if(windowWidth > windowHeight){
-        resizeCanvas(windowWidth, windowHeight);
+      if(windowWidth > 600){
+          var canvas = createCanvas(windowWidth, windowHeight);
+          canvas.parent("header1");
+          resizeCanvas(windowWidth, windowHeight);
       }else{
         document.getElementById("header1").innerHTML = '';
-        try {
-          resizeCanvas(windowWidth, windowHeight/2);
-        } catch (error) {
-          //blank
-        }
-      }
     }
+  }
   </script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js'></script>
 </body>
