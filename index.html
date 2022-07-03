@@ -67,11 +67,24 @@
 
     <img src="portfolio/rgb-circle-1.png" class="themeClrSelector__img">
   </div>
-  <section class="home-hero dynamicBg" "="" style=" background: linear-gradient(to right, rgba(214, 0, 0,
-    0.8), rgba(214, 0, 0, 0.8)), url(&quot;../../assets/svg/common-bg.svg&quot;);">
+  <section class="home-hero dynamicBg">
     <div id="header1"></div>
     <div class="home-hero__content">
-      <h1 class="heading-primary">Hey there I'm Jeff</h1>
+      <h1 id = "first" class="heading-primary">Hey there I'm </h1>
+      <div id = "second"> 
+        <h3 class="fixed"></h3>
+<div class="word">
+	<span class="heading-primary">J</span>
+	<span class="heading-primary">E</span>
+	<span class="heading-primary">F</span>
+	<span class="heading-primary">F</span>
+  <span class="heading-primary">!</span>
+</div>
+
+
+
+      </div>
+
       <div class="home-hero__info">
         <p class="text-primary">I'm studying Advanced Computer Science at the University of Adelaide</p>
       </div>
@@ -135,7 +148,7 @@
           <h3 class="about__content-title">Get to know me!</h3>
           <div class="about__content-details">
             <p class="about__content-details-para">Hi! My name is <strong>Jeffrey Chan</strong>
-              and I'm a <strong>Software Engineer</strong> interested in making cool projects and working with
+              and I'm a <strong>Software Developer</strong> interested in making cool projects and working with
               interesting people</p>
 
           </div>
@@ -172,7 +185,7 @@
           <h3 class="about__content-title">My Skills</h3>
           <div class="skills-charts">
             <div id="myCanvasContainer">
-                <canvas width="500" height="500" id="myCanvas" style="">
+                <canvas id="myCanvas">
                     <ul id="tags" style="display: none;">
                         <li><a href="#" target="_blank">HTML</a></li>
                         <li><a href="#" target="_blank">CSS</a></li>
@@ -512,6 +525,23 @@ $(document).ready(function (){
         $("#myCanvasContainer");
     }
 })
+
+
+const spans = document.querySelectorAll('.word span');
+
+spans.forEach((span, idx) => {
+	span.addEventListener('click', (e) => {
+		e.target.classList.add('active');
+	});
+	span.addEventListener('animationend', (e) => {
+		e.target.classList.remove('active');
+	});
+	
+	// Initial animation
+	setTimeout(() => {
+		span.classList.add('active');
+	}, 750 * (idx+1))
+});
   </script>
 </body>
 
