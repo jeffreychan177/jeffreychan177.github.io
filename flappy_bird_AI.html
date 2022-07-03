@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }</style>
+</head>
+<body>
+    <canvas></canvas>
+    <script>const acceleration = 0.5;
+        const numOfWeights = 4;
+        const populationSize = 100;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const diagonal = Math.sqrt(height * height + width * width);
+        const pipeGap = height / 3;
+        const pipeWidth = 40;
+        const birdsX = width / 10;
+        const birdRadius = pipeGap / 10;
+        const numOfEliteBirds = 1;
+        
+        class NeuralNetwork {
+          constructor(initialWeights, initialBias) {
+            this.weights = initialWeights;
+            this.bias = initialBias;
+          }
+          predict(inputs) {
+            const z =
+              inputs.map((input, idx) => input * this.weights[idx]).reduce((a, c) => a + c, 0) + this.bias;
+            return Math.tanh(z);
+          }
+        }
+        
+        const pickInRange = (min, max) => Math.random() * (max - min) + min;
+        const pickIntInRange = (min, max) => Math.round(pickInRange(min, max));
+        
+        class Pipe {
+          static pipes = [];
+          static closestPipe = null;
+          constructor() {
+            this.bottom = pickIntInRange(height * 0.025, height * 0.65);
+            this.top = this.bottom + pipeGap;
+            this.x = width;
+            this.haveChild = false;
+          }
+          move() {
+            const speed = 5 + Bird.score / 100;
+            this.x -= speed;
+            if (!this.haveChild && this.x < width / 2) {
+              this.haveChild = true;
+              Pipe.pipes.push(new Pipe());
+            }
+            if (this.x < 0) {
+              Pipe.pipes.shift();
+              Bird.score++;
+            }
+          }
+          static calcClosestPipe() {
+            Pipe.closestPipe = null;
+            let minimumDistance = Infinity;
+            for (const pipe of Pipe.pipes) {
+              if (pipe.x + birdRadius < birdsX) continue;
+              const currentDistance = pipe.x - birdsX;
+              if (currentDistance < minimumDistance) {
+                minimumDistance = currentDistance;
+                Pipe.closestPipe = pipe;
+              }
+            }
+          }
+        }
+        class Bird {
+          static score = 0;
+          static generation = 1;
+          static birds = [];
+          static eliteBirds = [];
+          constructor(initialWeights, initialBias) {
+            this.y = height / 2;
+            this.brain = new NeuralNetwork(initialWeights, initialBias);
+            this.velocityY = 0;
+            this.isDead = false;
+          }
+          kill() {
+            if (this.isDead) return;
+            this.isDead = true;
+            Bird.birds.splice(Bird.birds.indexOf(this), 1);
+            if (Bird.birds.length < numOfEliteBirds) {
+              Bird.eliteBirds.push(this);
+            }
+          }
+          move() {
+            this.velocityY -= acceleration;
+            this.y = Math.min(Math.max(this.y + this.velocityY, 0), height);
+            if (Pipe.closestPipe) {
+              if (
+                this.y < birdRadius ||
+                this.y > height - birdRadius ||
+                ((this.y + birdRadius > Pipe.closestPipe.top ||
+                  this.y - birdRadius < Pipe.closestPipe.bottom) &&
+                  Math.abs(birdsX - Pipe.closestPipe.x) < pipeWidth / 2 + birdRadius)
+              ) {
+                this.kill();
+                return;
+              }
+              if (
+                this.brain.predict([
+                  this.y / height,
+                  ...this.getDistanceToClosestPipe().map(dis => (dis / diagonal) * 2),
+                  (Pipe.closestPipe.x - birdsX) / width
+                ]) > 0.5
+              ) {
+                this.jump();
+              }
+            }
+          }
+          jump() {
+            this.velocityY = pipeGap / 25;
+          }
+          getDistanceToClosestPipe() {
+            return [
+              Math.sqrt(
+                Math.pow(Pipe.closestPipe.x - birdsX, 2) + Math.pow(Pipe.closestPipe.top - this.y, 2)
+              ),
+              Math.sqrt(
+                Math.pow(Pipe.closestPipe.x - birdsX, 2) + Math.pow(Pipe.closestPipe.bottom - this.y, 2)
+              )
+            ];
+          }
+        }
+        
+        const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
+        
+        const mutate = (value, rate) => value + pickInRange(-rate, rate);
+        
+        function generateBirds() {
+          if (Bird.eliteBirds.length) {
+            const newWeights = Array.from({ length: numOfWeights }).map((_, idx) =>
+              pickRandom(Bird.eliteBirds.map(bird => bird.brain.weights[idx]))
+            );
+            const newBias = pickRandom(Bird.eliteBirds.map(bird => bird.brain.bias));
+            const rate = Math.pow(0.5, Math.log(Bird.score || 1));
+            console.log("rate: ", rate);
+            Bird.birds = Array.from({ length: populationSize }).map(
+              () => new Bird(newWeights.map(mutate, rate), mutate(newBias, rate))
+            );
+          } else {
+            Bird.birds = Array.from({ length: populationSize }).map(
+              () =>
+                new Bird(
+                  Array.from({ length: numOfWeights }).map(() => pickInRange(-1, 1)),
+                  Math.random()
+                )
+            );
+          }
+        }
+        
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+        
+        function draw() {
+          ctx.fillStyle = "black";
+          ctx.fillRect(0, 0, width, height);
+          ctx.fill();
+          if (Bird.birds.length === 0) {
+            generateBirds();
+            Pipe.pipes = [];
+            Bird.eliteBirds = [];
+            Bird.generation++;
+            Bird.score = 0;
+            Pipe.pipes.push(new Pipe());
+            return;
+          }
+          for (const pipe of Pipe.pipes) {
+            pipe.move();
+          }
+          Pipe.calcClosestPipe();
+          for (const bird of Bird.birds) {
+            bird.move();
+          }
+        
+          ctx.fillStyle = "white";
+          for (const pipe of Pipe.pipes) {
+            ctx.beginPath();
+            ctx.rect(pipe.x - pipeWidth / 2, 0, pipeWidth, height - pipe.top);
+            ctx.rect(pipe.x - pipeWidth / 2, height - pipe.bottom, pipeWidth, pipe.bottom);
+            ctx.fill();
+            ctx.stroke();
+          }
+          ctx.fillStyle = "#1565c060";
+          ctx.strokeStyle = "#d5000090";
+          for (const bird of Bird.birds) {
+            ctx.beginPath();
+            ctx.arc(birdsX, height - bird.y, birdRadius, 0, 2 * Math.PI);
+            if (Pipe.closestPipe) {
+              ctx.moveTo(birdsX, height - bird.y);
+              ctx.lineTo(Pipe.closestPipe.x, height - Pipe.closestPipe.bottom);
+              ctx.moveTo(birdsX, height - bird.y);
+              ctx.lineTo(Pipe.closestPipe.x, height - Pipe.closestPipe.top);
+              ctx.stroke();
+            }
+            ctx.fill();
+          }
+          ctx.beginPath();
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(Bird.score, width - 150, 80);
+          ctx.fillText("G - " + Bird.generation, width - 300, height - 40);
+          ctx.fill();
+        }
+        let drawInterval;
+        function setup() {
+          canvas.height = height;
+          canvas.width = width;
+          generateBirds();
+          Pipe.pipes.push(new Pipe());
+          ctx.font = "80px serif";
+          drawInterval = setInterval(draw, 10);
+        }
+        
+        function stop() {
+          clearInterval(drawInterval);
+        }
+        
+        document.body.onload = () => setTimeout(setup, 100);
+        </script>
+</body>
+</html>
